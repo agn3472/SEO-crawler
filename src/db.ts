@@ -2,7 +2,7 @@ import pg from "pg";
 import type { PageResult } from "./types.js";
 import { config } from "./config.js";
 
-export const db = new pg.Pool({ connectionString: config.DATABASE_URL, ssl: { rejectUnauthorized: false }, max: 10 });
+export const db = new pg.Pool({ connectionString: config.DATABASE_URL, max: 10 });
 
 export async function setAuditStatus(id: string, status: string, extra: Record<string, unknown> = {}) {
   await db.query(`update audits set status=$2, updated_at=now(), pages_crawled=coalesce($3,pages_crawled), error=$4 where id=$1`, [id, status, extra.pagesCrawled ?? null, extra.error ?? null]);
@@ -18,6 +18,10 @@ export async function savePage(auditId: string, page: PageResult) {
       returning id`, [auditId,page.url,page.finalUrl,page.depth,page.status,page.contentType,page.responseMs,page.bytes,page.title,page.description,page.canonical,page.robots,page.h1Count,page.h2Count,page.wordCount,page.lang,page.internalLinks.length,page.externalLinks.length]);
     const pageId = result.rows[0].id;
     for (const i of page.issues) await db.query(`insert into audit_issues(audit_id,page_id,code,severity,message,evidence) values($1,$2,$3,$4,$5,$6)`, [auditId,pageId,i.code,i.severity,i.message,i.evidence ?? {}]);
+    for (const k of page.keywords) await db.query(`insert into audit_page_keywords(audit_id,page_id,keyword,occurrences,in_title,in_h1,in_headings,weighted_score)
+      values($1,$2,$3,$4,$5,$6,$7,$8)
+      on conflict(audit_id,page_id,keyword) do update set occurrences=excluded.occurrences,in_title=excluded.in_title,in_h1=excluded.in_h1,in_headings=excluded.in_headings,weighted_score=excluded.weighted_score`,
+      [auditId,pageId,k.keyword,k.occurrences,k.inTitle,k.inH1,k.inHeadings,k.weightedScore]);
     for (const target of page.internalLinks) await db.query(`insert into audit_links(audit_id,source_url,target_url,is_internal) values($1,$2,$3,true) on conflict do nothing`, [auditId,page.finalUrl,target]);
     await db.query('commit');
   } catch (error) { await db.query('rollback'); throw error; }
