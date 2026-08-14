@@ -24,7 +24,17 @@ export interface PageResult {
   lang: string | null;
   internalLinks: string[];
   externalLinks: string[];
+  keywords: KeywordMetric[];
   issues: Issue[];
+}
+
+export interface KeywordMetric {
+  keyword: string;
+  occurrences: number;
+  inTitle: boolean;
+  inH1: boolean;
+  inHeadings: boolean;
+  weightedScore: number;
 }
 
 export interface Issue {
