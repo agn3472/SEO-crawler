@@ -8,6 +8,7 @@ Production foundation for evidence-based technical SEO audits of up to **500 pag
 - `robots.txt` enforcement, crawl depth/page/body/time limits, redirects, retry queue, cancellation and live progress
 - SSRF protection that blocks private/reserved network destinations and rechecks redirect targets
 - Per-page evidence: HTTP status, response time, bytes, metadata, canonicals, robots directives, headings, visible word count, language and link counts
+- Sitewide keyword inventory for one-to-three-word phrases, including unique/total usage, page coverage, prominent placement, density, cannibalization risk and honest on-page strength labels
 - Stored issue evidence, link graph, severity summary and deterministic 0–100 technical score
 - 500-page audit cap (configurable downward), persistent results and resumable queue jobs
 
@@ -37,6 +38,7 @@ curl -X POST https://YOUR-API/v1/audits \
 ```
 
 Poll `GET /v1/audits/{id}` and retrieve evidence with `GET /v1/audits/{id}/issues?limit=100&offset=0`.
+Keyword intelligence is available at `GET /v1/audits/{id}/keywords?limit=100&offset=0`. Its labels describe crawler-observed on-page targeting only; rankings, traffic, conversions, search volume and difficulty require external providers such as Google Search Console and an SEO data API.
 
 ## Local development
 
