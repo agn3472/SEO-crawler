@@ -55,7 +55,7 @@ export async function crawlSite(auditId: string, rawStartUrl: string, requestedM
       for(const link of page.internalLinks) if(!seen.has(link)&&sameSite(link,startUrl)) pending.push({url:link,depth:candidate.depth+1});
       await onProgress?.(crawled);
     } catch (error) {
-      await savePage(auditId,{url:candidate.url,finalUrl:candidate.url,depth:candidate.depth,status:0,contentType:'',responseMs:0,bytes:0,title:null,description:null,canonical:null,robots:null,h1Count:0,h2Count:0,wordCount:0,lang:null,internalLinks:[],externalLinks:[],issues:[{code:'FETCH_FAILED',severity:'high',message:error instanceof Error?error.message:'Fetch failed'}]});
+      await savePage(auditId,{url:candidate.url,finalUrl:candidate.url,depth:candidate.depth,status:0,contentType:'',responseMs:0,bytes:0,title:null,description:null,canonical:null,robots:null,h1Count:0,h2Count:0,wordCount:0,lang:null,internalLinks:[],externalLinks:[],keywords:[],issues:[{code:'FETCH_FAILED',severity:'high',message:error instanceof Error?error.message:'Fetch failed'}]});
       crawled++;
     }
     await sleep(config.CRAWL_DELAY_MS);
