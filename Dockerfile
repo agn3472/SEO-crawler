@@ -12,4 +12,4 @@ COPY package*.json ./
 RUN npm install --omit=dev
 COPY --from=build /app/dist ./dist
 USER node
-CMD ["node","dist/worker.js"]
+CMD ["node","dist/api.js"]
